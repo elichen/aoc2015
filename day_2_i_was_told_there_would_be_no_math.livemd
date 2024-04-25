@@ -1,0 +1,59 @@
+<!-- livebook:{"file_entries":[{"file":{"file_system_id":"local","file_system_type":"local","path":"/Users/eli/Desktop/input.txt"},"name":"input.txt","type":"file"}]} -->
+
+# Day 2: I Was Told There Would Be No Math
+
+## Section
+
+```elixir
+defmodule Foo do
+  def sum(s) do
+    [l, w, h] =
+      s
+      |> String.split("x")
+      |> Enum.map(&String.to_integer/1)
+
+    2 * l * w + 2 * w * h + 2 * h * l + Enum.min([l * w, w * h, h * l])
+  end
+end
+
+{:ok, data} = File.read("/Users/eli/Desktop/input.txt")
+
+data
+|> String.split("\n", trim: true)
+|> Enum.map(&Foo.sum/1)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+1606483
+```
+
+```elixir
+defmodule Foo2 do
+  def ribbon(s) do
+    [l, w, h] =
+      s
+      |> String.split("x")
+      |> Enum.map(&String.to_integer/1)
+
+    Enum.min([2 * l + 2 * w, 2 * w + 2 * h, 2 * h + 2 * l]) + l * w * h
+  end
+end
+
+{:ok, data} = File.read("/Users/eli/Desktop/input.txt")
+
+data
+|> String.split("\n", trim: true)
+|> Enum.map(&Foo2.ribbon/1)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+3842356
+```
+
+<!-- livebook:{"offset":1053,"stamp":{"token":"XCP.xx2Oc_fOH4B-AT5JskGMDorB9jlm-ntvWHVauv_egbR3L5JzaHDcbmeg2rQQ4xkWO3wu_OU9H9zjkRoQUxqSX4tRim4jeDWTlwNX0w","version":2}} -->
