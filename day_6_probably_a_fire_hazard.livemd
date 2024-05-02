@@ -1,0 +1,141 @@
+<!-- livebook:{"file_entries":[{"file":{"file_system_id":"local","file_system_type":"local","path":"/Users/eli/Desktop/input.txt"},"name":"input.txt","type":"file"}]} -->
+
+# Day 6: Probably a Fire Hazard
+
+## Section
+
+```elixir
+defmodule P1 do
+  def create_grid() do
+    Enum.map(0..999, fn _ ->
+      Enum.map(0..999, fn _ ->
+        false
+      end)
+    end)
+  end
+
+  def update_grid(grid, "turn on", {x1, y1}, {x2, y2}) do
+    update_range(grid, {x1, y1}, {x2, y2}, fn _ -> true end)
+  end
+
+  def update_grid(grid, "turn off", {x1, y1}, {x2, y2}) do
+    update_range(grid, {x1, y1}, {x2, y2}, fn _ -> false end)
+  end
+
+  def update_grid(grid, "toggle", {x1, y1}, {x2, y2}) do
+    update_range(grid, {x1, y1}, {x2, y2}, fn state -> not state end)
+  end
+
+  def update_range(grid, {x1, y1}, {x2, y2}, func) do
+    Enum.with_index(grid)
+    |> Enum.map(fn {row, x} ->
+      if x >= x1 and x <= x2 do
+        Enum.with_index(row)
+        |> Enum.map(fn {cell, y} ->
+          if y >= y1 and y <= y2 do
+            func.(cell)
+          else
+            cell
+          end
+        end)
+      else
+        row
+      end
+    end)
+  end
+end
+
+{:ok, data} = File.read("/Users/eli/Desktop/input.txt")
+grid = P1.create_grid()
+
+data
+|> String.split("\n", trim: true)
+|> Enum.reduce(grid, fn line, grid ->
+  [command, x1, y1, x2, y2] =
+    Regex.run(~r/(turn on|turn off|toggle) (\d+),(\d+) through (\d+),(\d+)/, line,
+      capture: :all_but_first
+    )
+
+  {x1, y1, x2, y2} =
+    {String.to_integer(x1), String.to_integer(y1), String.to_integer(x2), String.to_integer(y2)}
+
+  P1.update_grid(grid, command, {x1, y1}, {x2, y2})
+end)
+|> Enum.flat_map(& &1)
+|> Enum.count(&(&1 == true))
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+569999
+```
+
+```elixir
+defmodule P2 do
+  def create_grid() do
+    Enum.map(0..999, fn _ ->
+      Enum.map(0..999, fn _ ->
+        0
+      end)
+    end)
+  end
+
+  def update_grid(grid, "turn on", {x1, y1}, {x2, y2}) do
+    update_range(grid, {x1, y1}, {x2, y2}, fn state -> state + 1 end)
+  end
+
+  def update_grid(grid, "turn off", {x1, y1}, {x2, y2}) do
+    update_range(grid, {x1, y1}, {x2, y2}, fn state -> max(state - 1, 0) end)
+  end
+
+  def update_grid(grid, "toggle", {x1, y1}, {x2, y2}) do
+    update_range(grid, {x1, y1}, {x2, y2}, fn state -> state + 2 end)
+  end
+
+  def update_range(grid, {x1, y1}, {x2, y2}, func) do
+    Enum.with_index(grid)
+    |> Enum.map(fn {row, x} ->
+      if x >= x1 and x <= x2 do
+        Enum.with_index(row)
+        |> Enum.map(fn {cell, y} ->
+          if y >= y1 and y <= y2 do
+            func.(cell)
+          else
+            cell
+          end
+        end)
+      else
+        row
+      end
+    end)
+  end
+end
+
+{:ok, data} = File.read("/Users/eli/Desktop/input.txt")
+grid = P2.create_grid()
+
+data
+|> String.split("\n", trim: true)
+|> Enum.reduce(grid, fn line, grid ->
+  [command, x1, y1, x2, y2] =
+    Regex.run(~r/(turn on|turn off|toggle) (\d+),(\d+) through (\d+),(\d+)/, line,
+      capture: :all_but_first
+    )
+
+  {x1, y1, x2, y2} =
+    {String.to_integer(x1), String.to_integer(y1), String.to_integer(x2), String.to_integer(y2)}
+
+  P2.update_grid(grid, command, {x1, y1}, {x2, y2})
+end)
+|> Enum.flat_map(& &1)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+17836115
+```
+
+<!-- livebook:{"offset":3244,"stamp":{"token":"XCP.Kr9BLj7Dx8J4V-XoTG1L6wCi-afTS2_pWI0MBQDzPf88o-ARKNi2zXX6XBpy4z-1C1CGiXsOjlnmR0eHPcUC_Ehj4gBU6OS8LU1CFg","version":2}} -->
