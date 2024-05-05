@@ -1,0 +1,81 @@
+<!-- livebook:{"file_entries":[{"file":{"file_system_id":"local","file_system_type":"local","path":"/Users/eli/Desktop/input.txt"},"name":"input.txt","type":"file"}]} -->
+
+# Day 9: All in a Single Night
+
+## Section
+
+```elixir
+defmodule P1 do
+  def parse_lines(lines) do
+    lines
+    |> Enum.reduce(%{}, &parse_line/2)
+  end
+
+  defp parse_line(line, acc) do
+    Regex.run(~r/^(\w+) to (\w+) = (\d+)$/, line, capture: :all_but_first)
+    |> case do
+      [city1, city2, dist_str] ->
+        dist = String.to_integer(dist_str)
+
+        acc
+        |> Map.update(city1, %{city2 => dist}, &Map.put(&1, city2, dist))
+        |> Map.update(city2, %{city1 => dist}, &Map.put(&1, city1, dist))
+    end
+  end
+
+  def dfs_all(graph) do
+    Enum.map(Map.keys(graph), fn start_node ->
+      explore_from_node(graph, start_node)
+    end)
+    |> List.flatten()
+  end
+
+  defp explore_from_node(graph, start_node) do
+    dfs(graph, start_node, [start_node], 0, [])
+  end
+
+  defp dfs(graph, current, path, distance, all_paths) do
+    neighbors = Map.get(graph, current, %{})
+    nodes = Map.keys(graph)
+
+    if length(path) == length(nodes) do
+      [{Enum.reverse(path), distance} | all_paths]
+    else
+      Enum.reduce(neighbors, all_paths, fn {neighbor, d}, acc ->
+        if Enum.member?(path, neighbor) do
+          acc
+        else
+          dfs(graph, neighbor, [neighbor | path], distance + d, acc)
+        end
+      end)
+    end
+  end
+end
+
+paths =
+  "/Users/eli/Desktop/input.txt"
+  |> File.read!()
+  |> String.split("\n", trim: true)
+  |> P1.parse_lines()
+  |> P1.dfs_all()
+
+IO.inspect(Enum.min_by(paths, &elem(&1, 1)))
+IO.inspect(Enum.max_by(paths, &elem(&1, 1)))
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{["Faerun", "AlphaCentauri", "Tambi", "Snowdin", "Norrath", "Tristram", "Arbre",
+  "Straylight"], 117}
+{["Snowdin", "Tristram", "Straylight", "AlphaCentauri", "Norrath", "Faerun",
+  "Arbre", "Tambi"], 909}
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{["Snowdin", "Tristram", "Straylight", "AlphaCentauri", "Norrath", "Faerun", "Arbre", "Tambi"], 909}
+```
+
+<!-- livebook:{"offset":2057,"stamp":{"token":"XCP.TK6wgLP1yfZofyowDf4US2rwpL5VkFWpUbJIDnpkWtU9_5IVnC8x5zWK7xg28kV_OSzCgM-sxi8PIaw-2PTPVM25VEu2oFwsegmT4w","version":2}} -->
