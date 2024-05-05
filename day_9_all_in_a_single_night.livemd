@@ -59,23 +59,18 @@ paths =
   |> P1.parse_lines()
   |> P1.dfs_all()
 
-IO.inspect(Enum.min_by(paths, &elem(&1, 1)))
-IO.inspect(Enum.max_by(paths, &elem(&1, 1)))
+min_path = Enum.min_by(paths, &elem(&1, 1))
+max_path = Enum.max_by(paths, &elem(&1, 1))
+{min_path, max_path}
 ```
 
 <!-- livebook:{"output":true} -->
 
 ```
-{["Faerun", "AlphaCentauri", "Tambi", "Snowdin", "Norrath", "Tristram", "Arbre",
-  "Straylight"], 117}
-{["Snowdin", "Tristram", "Straylight", "AlphaCentauri", "Norrath", "Faerun",
-  "Arbre", "Tambi"], 909}
+{{["Faerun", "AlphaCentauri", "Tambi", "Snowdin", "Norrath", "Tristram", "Arbre", "Straylight"],
+  117},
+ {["Snowdin", "Tristram", "Straylight", "AlphaCentauri", "Norrath", "Faerun", "Arbre", "Tambi"],
+  909}}
 ```
 
-<!-- livebook:{"output":true} -->
-
-```
-{["Snowdin", "Tristram", "Straylight", "AlphaCentauri", "Norrath", "Faerun", "Arbre", "Tambi"], 909}
-```
-
-<!-- livebook:{"offset":2057,"stamp":{"token":"XCP.TK6wgLP1yfZofyowDf4US2rwpL5VkFWpUbJIDnpkWtU9_5IVnC8x5zWK7xg28kV_OSzCgM-sxi8PIaw-2PTPVM25VEu2oFwsegmT4w","version":2}} -->
+<!-- livebook:{"offset":1935,"stamp":{"token":"XCP.TRIZWUxv5neWgkyF22onXZHEIS498iGVzna-a5LI06Op4toOqfJlYBHmLMUxALNbLbASARjVnL6N-2L6W0OoSwjZDoOAA-rbAbcwLQ","version":2}} -->
