@@ -1,0 +1,50 @@
+# Day 10: Elves Look, Elves Say
+
+## Section
+
+```elixir
+defmodule P1 do
+  def transform(<<head, tail::binary>>) do
+    transform(tail, [], 1, head)
+    |> Enum.reduce("", fn {num, count}, acc ->
+      acc <> Integer.to_string(num) <> Integer.to_string(count)
+    end)
+  end
+
+  defp transform("", acc, count, char) when char != nil do
+    [{count, char - 48} | acc] |> Enum.reverse()
+  end
+
+  defp transform(<<head, tail::binary>>, acc, count, head) do
+    transform(tail, acc, count + 1, head)
+  end
+
+  defp transform(<<head, tail::binary>>, acc, count, char) do
+    transform(tail, [{count, char - 48} | acc], 1, head)
+  end
+end
+
+Enum.reduce(1..40, "3113322113", fn _, acc ->
+  P1.transform(acc)
+end)
+|> String.length()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+329356
+```
+
+```elixir
+Enum.reduce(1..50, "3113322113", fn _, acc ->
+  P1.transform(acc)
+end)
+|> String.length()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+4666278
+```
