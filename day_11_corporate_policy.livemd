@@ -1,0 +1,108 @@
+# Day 11: Corporate Policy
+
+## Section
+
+```elixir
+defmodule P1 do
+  def increment_until_valid(password) do
+    new_password = P1.increment_string(password)
+
+    if P1.validate_password(new_password) do
+      new_password
+    else
+      increment_until_valid(new_password)
+    end
+  end
+
+  def increment_string(str) do
+    str
+    # Convert string to a list of characters
+    |> String.to_charlist()
+    # Reverse for easier right-to-left processing
+    |> Enum.reverse()
+    # Process increment logic
+    |> increment_reversed()
+    # Reverse back to original direction
+    |> Enum.reverse()
+    # Convert back to a string
+    |> List.to_string()
+  end
+
+  defp increment_reversed(charlist) do
+    do_increment(charlist, true)
+  end
+
+  # If all characters have overflowed, prepend 'a'
+  defp do_increment([], true), do: ~c"a"
+
+  defp do_increment([h | t], true) do
+    case h do
+      # If 'z', wrap around to 'a' and carry over
+      ?z -> [?a | do_increment(t, true)]
+      # Otherwise, increment normally
+      _ -> [next_char(h + 1) | t]
+    end
+  end
+
+  # No carry, retain character
+  defp do_increment([h | t], false), do: [h | t]
+  defp next_char(char) when char in [?i, ?o, ?l], do: next_char(char + 1)
+  defp next_char(char), do: char
+
+  # Public function to validate a password based on the rules.
+  def validate_password(password) do
+    has_straight(password) and not has_invalid_letters?(password) and has_two_pairs(password)
+  end
+
+  # Checks for at least one increasing straight of three letters.
+  def has_straight(password) do
+    password
+    |> String.to_charlist()
+    |> has_straight_helper(false)
+  end
+
+  defp has_straight_helper([a, b, c | _rest], _) when b == a + 1 and c == b + 1,
+    do: true
+
+  defp has_straight_helper([_ | rest], acc),
+    do: has_straight_helper(rest, acc)
+
+  defp has_straight_helper([], _),
+    do: false
+
+  # Checks if the password contains any of the forbidden letters.
+  def has_invalid_letters?(password) do
+    String.contains?(password, ["i", "o", "l"])
+  end
+
+  # Checks for at least two non-overlapping pairs of the same letter.
+  def has_two_pairs(password) do
+    pairs =
+      password
+      |> String.graphemes()
+      |> Enum.chunk_every(2, 1, :discard)
+      |> Enum.filter(fn [a, b] -> a == b end)
+      |> Enum.uniq()
+
+    length(pairs) >= 2
+  end
+end
+
+P1.increment_until_valid("hepxcrrq")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+"hepxxyzz"
+```
+
+```elixir
+P1.increment_until_valid("hepxxyzz")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+"heqaabcc"
+```
