@@ -1,0 +1,91 @@
+# Day 14: Reindeer Olympics
+
+## Section
+
+```elixir
+regex = ~r/(\w+) can fly (\d+) km\/s for (\d+) seconds, but then must rest for (\d+) seconds/
+
+map =
+  "Vixen can fly 8 km/s for 8 seconds, but then must rest for 53 seconds.
+Blitzen can fly 13 km/s for 4 seconds, but then must rest for 49 seconds.
+Rudolph can fly 20 km/s for 7 seconds, but then must rest for 132 seconds.
+Cupid can fly 12 km/s for 4 seconds, but then must rest for 43 seconds.
+Donner can fly 9 km/s for 5 seconds, but then must rest for 38 seconds.
+Dasher can fly 10 km/s for 4 seconds, but then must rest for 37 seconds.
+Comet can fly 3 km/s for 37 seconds, but then must rest for 76 seconds.
+Prancer can fly 9 km/s for 12 seconds, but then must rest for 97 seconds.
+Dancer can fly 37 km/s for 1 seconds, but then must rest for 36 seconds."
+  # "Comet can fly 14 km/s for 10 seconds, but then must rest for 127 seconds.
+  # Dancer can fly 16 km/s for 11 seconds, but then must rest for 162 seconds."
+  |> String.split("\n")
+  |> Enum.map(fn line ->
+    case Regex.run(regex, line, capture: :all_but_first) do
+      [name, speed, active_time, rest_time] ->
+        {name,
+         %{
+           speed: String.to_integer(speed),
+           active_time: String.to_integer(active_time),
+           rest_time: String.to_integer(rest_time)
+         }}
+    end
+  end)
+  |> Enum.into(%{})
+
+result =
+  Enum.reduce(0..2502, %{}, fn n, acc ->
+    Enum.reduce(map, acc, fn {name, attrs}, acc_inner ->
+      cycle_time = attrs.active_time + attrs.rest_time
+
+      if rem(n, cycle_time) < attrs.active_time do
+        Map.update(acc_inner, name, attrs.speed, &(&1 + attrs.speed))
+      else
+        acc_inner
+      end
+    end)
+  end)
+
+Enum.max_by(result, fn {_k, v} -> v end)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{"Donner", 2655}
+```
+
+```elixir
+result2 =
+  Enum.reduce(0..2502, %{}, fn n, acc ->
+    acc =
+      Enum.reduce(map, acc, fn {name, attrs}, acc_inner ->
+        cycle_time = attrs.active_time + attrs.rest_time
+
+        if rem(n, cycle_time) < attrs.active_time do
+          Map.update(acc_inner, name, {attrs.speed, 0}, fn {dist, points} ->
+            {dist + attrs.speed, points}
+          end)
+        else
+          acc_inner
+        end
+      end)
+
+    max_dist = Enum.max_by(acc, fn {_k, {dist, _points}} -> dist end) |> elem(1) |> elem(0)
+
+    largest_keys =
+      Enum.filter(acc, fn {_key, {dist, _points}} -> dist == max_dist end)
+      |> Enum.map(&elem(&1, 0))
+
+    Enum.reduce(largest_keys, acc, fn key, inner_acc ->
+      Map.update!(inner_acc, key, fn {dist, points} -> {dist, points + 1} end)
+    end)
+  end)
+
+{name, {dist, points}} = Enum.max_by(result2, fn {_k, {_dist, points}} -> points end)
+{name, points}
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{"Vixen", 1059}
+```
