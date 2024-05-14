@@ -1,0 +1,113 @@
+# Day 15: Science for Hungry People
+
+## Section
+
+```elixir
+defmodule P1 do
+  def parse(input) do
+    input
+    |> String.split("\n")
+    |> Enum.map(&parse_line/1)
+    |> Enum.into(%{})
+  end
+
+  def parse_line(line) do
+    [ingredient | [properties]] = String.split(line, ": ")
+
+    properties_map =
+      properties
+      |> String.split(", ")
+      |> Enum.map(fn prop ->
+        [key, value] = String.split(prop, " ")
+        {String.to_atom(key), String.to_integer(value)}
+      end)
+      |> Enum.into(%{})
+
+    {ingredient, properties_map}
+  end
+
+  def calculate_scores(ingredients) do
+    ingredient_combinations(Map.keys(ingredients), 100)
+    |> Enum.map(&score_combination(&1, ingredients))
+    |> Enum.max()
+  end
+
+  def calculate_scores2(ingredients) do
+    ingredient_combinations(Map.keys(ingredients), 100)
+    |> Enum.map(&score_combination2(&1, ingredients))
+    |> Enum.max()
+  end
+
+  defp ingredient_combinations([name], remaining) do
+    [[{name, remaining}]]
+  end
+
+  defp ingredient_combinations([name | rest], remaining) do
+    for amount <- 0..remaining,
+        combination <- ingredient_combinations(rest, remaining - amount) do
+      [{name, amount} | combination]
+    end
+  end
+
+  defp score_combination(combination, ingredients) do
+    scores =
+      Enum.reduce(
+        combination,
+        %{capacity: 0, durability: 0, flavor: 0, texture: 0, calories: 0},
+        fn {name, amount}, acc ->
+          ingredient = Map.get(ingredients, name)
+          Map.merge(acc, ingredient, fn _k, v1, v2 -> v1 + v2 * amount end)
+        end
+      )
+
+    scores
+    |> Enum.map(fn {key, value} -> if value < 0 or key == :calories, do: 1, else: value end)
+    |> Enum.reduce(1, fn value, acc -> acc * value end)
+  end
+
+  defp score_combination2(combination, ingredients) do
+    scores =
+      Enum.reduce(
+        combination,
+        %{capacity: 0, durability: 0, flavor: 0, texture: 0, calories: 0},
+        fn {name, amount}, acc ->
+          ingredient = Map.get(ingredients, name)
+          Map.merge(acc, ingredient, fn _k, v1, v2 -> v1 + v2 * amount end)
+        end
+      )
+
+    if scores.calories == 500 do
+      scores
+      |> Enum.map(fn {key, value} -> if value < 0 or key == :calories, do: 1, else: value end)
+      |> Enum.reduce(1, fn value, acc -> acc * value end)
+    else
+      0
+    end
+  end
+end
+
+map =
+  "Sprinkles: capacity 5, durability -1, flavor 0, texture 0, calories 5
+PeanutButter: capacity -1, durability 3, flavor 0, texture 0, calories 1
+Frosting: capacity 0, durability -1, flavor 4, texture 0, calories 6
+Sugar: capacity -1, durability 0, flavor 0, texture 2, calories 8"
+  |> P1.parse()
+
+P1.calculate_scores(map)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+13882464
+```
+
+```elixir
+P1.calculate_scores2(map)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+11171160
+```
