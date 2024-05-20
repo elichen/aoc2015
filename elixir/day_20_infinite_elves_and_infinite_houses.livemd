@@ -1,0 +1,57 @@
+# Day 20: Infinite Elves and Infinite Houses
+
+## Section
+
+```elixir
+defmodule SumDivisible do
+  def sum_multiplied(n) do
+    divisors = for i <- 1..trunc(:math.sqrt(n)), rem(n, i) == 0, do: [i, div(n, i)]
+
+    divisors
+    |> List.flatten()
+    |> Enum.sum()
+    |> Kernel.*(10)
+  end
+
+  def find_greater_than_limit(limit) do
+    Stream.iterate(1, &(&1 + 1))
+    |> Enum.find(fn n -> sum_multiplied(n) > limit end)
+  end
+
+  def sum_multiplied2(n) do
+    divisors = for i <- 1..trunc(:math.sqrt(n)), rem(n, i) == 0, do: [i, div(n, i)]
+
+    filtered_divisors =
+      divisors
+      |> List.flatten()
+      |> Enum.filter(&(&1 * 50 >= n))
+
+    filtered_divisors
+    |> Enum.sum()
+    |> Kernel.*(11)
+  end
+
+  def find_greater_than_limit2(limit) do
+    Stream.iterate(1, &(&1 + 1))
+    |> Enum.find(fn n -> sum_multiplied2(n) > limit end)
+  end
+end
+
+SumDivisible.find_greater_than_limit(36_000_000)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+831600
+```
+
+```elixir
+SumDivisible.find_greater_than_limit2(36_000_000)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+884520
+```

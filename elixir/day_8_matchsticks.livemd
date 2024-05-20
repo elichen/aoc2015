@@ -1,0 +1,54 @@
+<!-- livebook:{"file_entries":[{"file":{"file_system_id":"local","file_system_type":"local","path":"/Users/eli/Desktop/input.txt"},"name":"input.txt","type":"file"}]} -->
+
+# Day 8: Matchsticks
+
+## Section
+
+```elixir
+defmodule P1 do
+  def count_esc(str), do: do_count_chrs(String.to_charlist(str), 0)
+
+  defp do_count_chrs([], count), do: count
+  defp do_count_chrs([92, 92 | rest], count), do: do_count_chrs(rest, count + 1)
+  defp do_count_chrs([92, 34 | rest], count), do: do_count_chrs(rest, count + 1)
+  defp do_count_chrs([92, 120, _, _ | rest], count), do: do_count_chrs(rest, count + 1)
+  defp do_count_chrs([_ | rest], count), do: do_count_chrs(rest, count + 1)
+end
+
+"/Users/eli/Desktop/input.txt"
+|> File.read!()
+|> String.split("\n", trim: true)
+|> Enum.map(fn x -> String.length(x) - P1.count_esc(x) + 2 end)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+1342
+```
+
+```elixir
+defmodule P2 do
+  def count_esc(str), do: do_count_chrs(String.to_charlist(str), 0)
+
+  defp do_count_chrs([], count), do: count
+  defp do_count_chrs([92 | rest], count), do: do_count_chrs(rest, count + 1)
+  defp do_count_chrs([34 | rest], count), do: do_count_chrs(rest, count + 1)
+  defp do_count_chrs([_ | rest], count), do: do_count_chrs(rest, count)
+end
+
+"/Users/eli/Desktop/input.txt"
+|> File.read!()
+|> String.split("\n", trim: true)
+|> Enum.map(fn x -> 2 + P2.count_esc(x) end)
+|> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+2074
+```
+
+<!-- livebook:{"offset":1450,"stamp":{"token":"XCP.rPKHgVQ1wLdt4sF2KSTmgJAg0FXQdT81hplVCzPxX9KVaVO5K2nrqsInhLa731lT-Mn-mgrgrqRw5R8FV-_6UooSX4hi892SQ18Iww","version":2}} -->

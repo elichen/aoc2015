@@ -1,0 +1,121 @@
+<!-- livebook:{"file_entries":[{"file":{"file_system_id":"local","file_system_type":"local","path":"/Users/eli/Desktop/input.txt"},"name":"input.txt","type":"file"}]} -->
+
+# Day 18: Like a GIF For Your Yard
+
+## Section
+
+```elixir
+defmodule P1 do
+  def parse(str) do
+    str
+    |> String.split("\n", trim: true)
+    |> Enum.map(&String.graphemes/1)
+    |> Enum.map(
+      &Enum.map(&1, fn
+        "." -> false
+        "#" -> true
+      end)
+    )
+  end
+
+  def update(grid) do
+    grid
+    |> Enum.with_index()
+    |> Enum.map(fn {row, i} ->
+      row
+      |> Enum.with_index()
+      |> Enum.map(fn {cell, j} ->
+        on_neighbors = count_on_neighbors(grid, i, j)
+
+        case cell do
+          true -> on_neighbors in 2..3
+          false -> on_neighbors == 3
+        end
+      end)
+    end)
+  end
+
+  def update_n_times(grid, 0), do: grid
+
+  def update_n_times(grid, n) when n > 0 do
+    grid
+    |> update()
+    |> update_n_times(n - 1)
+  end
+
+  def count_on_neighbors(grid, x, y) do
+    for i <- max(x - 1, 0)..min(x + 1, length(grid) - 1),
+        j <- max(y - 1, 0)..min(y + 1, length(hd(grid)) - 1),
+        {i, j} != {x, y},
+        reduce: 0 do
+      acc -> acc + if Enum.at(grid, i) |> Enum.at(j), do: 1, else: 0
+    end
+  end
+
+  def to_string(grid) do
+    grid
+    |> Enum.map(fn row ->
+      row
+      |> Enum.map(fn cell ->
+        if cell, do: "#", else: "."
+      end)
+      |> Enum.join("")
+    end)
+    |> Enum.join("\n")
+    |> IO.puts()
+  end
+
+  def count(grid) do
+    grid
+    |> Enum.flat_map(& &1)
+    |> Enum.count(& &1)
+  end
+
+  def set_corners_true(grid) do
+    grid
+    |> List.update_at(0, fn row ->
+      List.update_at(List.update_at(row, 0, fn _ -> true end), -1, fn _ -> true end)
+    end)
+    |> List.update_at(-1, fn row ->
+      List.update_at(List.update_at(row, 0, fn _ -> true end), -1, fn _ -> true end)
+    end)
+  end
+
+  def update_n_times2(grid, 0), do: grid
+
+  def update_n_times2(grid, n) when n > 0 do
+    grid
+    |> update()
+    |> set_corners_true()
+    |> update_n_times2(n - 1)
+  end
+end
+
+"/Users/eli/Desktop/input.txt"
+|> File.read!()
+|> P1.parse()
+|> P1.update_n_times(100)
+|> P1.count()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+1061
+```
+
+```elixir
+"/Users/eli/Desktop/input.txt"
+|> File.read!()
+|> P1.parse()
+|> P1.update_n_times2(100)
+|> P1.count()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+1006
+```
+
+<!-- livebook:{"offset":2359,"stamp":{"token":"XCP.oe6Hb5uKHIH7fkPOmiIJZEMZP_ghnQs-ZcxrpLl1SbUlLa7ukNb9xiBh7w18-GbYhjjxPj0pyzxCI24zUB2MERCPlyFx1v811e5q7w","version":2}} -->

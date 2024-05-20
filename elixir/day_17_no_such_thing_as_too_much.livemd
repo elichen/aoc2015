@@ -1,0 +1,47 @@
+# Day 17: No Such Thing as Too Much
+
+## Section
+
+```elixir
+defmodule P1 do
+  def combinations([]), do: [[]]
+
+  def combinations([h | t]) do
+    tcs = combinations(t)
+    tcs ++ Enum.map(tcs, fn comb -> [h | comb] end)
+  end
+end
+
+[33, 14, 18, 20, 45, 35, 16, 35, 1, 13, 18, 13, 50, 44, 48, 6, 24, 41, 30, 42]
+|> P1.combinations()
+|> Enum.filter(fn comb -> Enum.sum(comb) == 150 end)
+|> length()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+1304
+```
+
+```elixir
+combs =
+  [33, 14, 18, 20, 45, 35, 16, 35, 1, 13, 18, 13, 50, 44, 48, 6, 24, 41, 30, 42]
+  |> P1.combinations()
+  |> Enum.filter(fn comb -> Enum.sum(comb) == 150 end)
+
+min_len =
+  combs
+  |> Enum.map(&length/1)
+  |> Enum.min()
+
+combs
+|> Enum.filter(fn comb -> length(comb) == min_len end)
+|> Enum.count()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+18
+```

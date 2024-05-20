@@ -1,0 +1,151 @@
+<!-- livebook:{"file_entries":[{"file":{"file_system_id":"local","file_system_type":"local","path":"/Users/eli/Desktop/input.txt"},"name":"input.txt","type":"file"}]} -->
+
+# Day 24: It Hangs in the Balance
+
+## Section
+
+```elixir
+defmodule Santa do
+  def solve(weights) do
+    total_weight = Enum.sum(weights)
+
+    if rem(total_weight, 3) != 0 do
+      raise "The total weight is not divisible by 3"
+    end
+
+    target_weight = div(total_weight, 3)
+
+    Stream.iterate(1, &(&1 + 1))
+    |> Stream.take_while(&(&1 <= length(weights)))
+    |> Stream.flat_map(fn n -> combinations(weights, n) end)
+    |> Stream.filter(fn comb -> Enum.sum(comb) == target_weight end)
+    |> Enum.reduce_while(nil, fn group1, _acc ->
+      remaining_weights = weights -- group1
+
+      if find_valid_group(remaining_weights, target_weight) do
+        {:halt, quantum_entanglement(group1)}
+      else
+        {:cont, nil}
+      end
+    end)
+  end
+
+  defp find_valid_group(weights, target_weight) do
+    Stream.iterate(1, &(&1 + 1))
+    |> Stream.take_while(&(&1 <= length(weights)))
+    |> Stream.flat_map(fn n -> combinations(weights, n) end)
+    |> Stream.filter(fn comb -> Enum.sum(comb) == target_weight end)
+    |> Enum.any?(fn group2 ->
+      remaining_weights2 = weights -- group2
+      Enum.sum(remaining_weights2) == target_weight
+    end)
+  end
+
+  defp combinations(list, n) do
+    combinations(list, n, [])
+  end
+
+  defp combinations([], _, acc), do: [Enum.reverse(acc)]
+  defp combinations(_, 0, acc), do: [Enum.reverse(acc)]
+
+  defp combinations([h | t], n, acc) do
+    with_h = combinations(t, n - 1, [h | acc])
+    without_h = combinations(t, n, acc)
+    with_h ++ without_h
+  end
+
+  defp quantum_entanglement(group) do
+    Enum.reduce(group, 1, &*/2)
+  end
+end
+
+"/Users/eli/Desktop/input.txt"
+|> File.read!()
+|> String.split("\n", trim: true)
+|> Enum.map(fn x -> String.to_integer(x) end)
+|> Santa.solve()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+10723906903
+```
+
+```elixir
+defmodule Santa2 do
+  def solve(weights) do
+    total_weight = Enum.sum(weights)
+
+    if rem(total_weight, 4) != 0 do
+      raise "The total weight is not divisible by 4"
+    end
+
+    target_weight = div(total_weight, 4)
+
+    Stream.iterate(1, &(&1 + 1))
+    |> Stream.take_while(&(&1 <= length(weights)))
+    |> Stream.flat_map(fn n -> combinations(weights, n) end)
+    |> Stream.filter(fn comb -> Enum.sum(comb) == target_weight end)
+    |> Enum.reduce_while(nil, fn group1, _acc ->
+      remaining_weights = weights -- group1
+
+      if find_valid_group(remaining_weights, target_weight) do
+        {:halt, quantum_entanglement(group1)}
+      else
+        {:cont, nil}
+      end
+    end)
+  end
+
+  defp find_valid_group(weights, target_weight) do
+    Stream.iterate(1, &(&1 + 1))
+    |> Stream.take_while(&(&1 <= length(weights)))
+    |> Stream.flat_map(fn n -> combinations(weights, n) end)
+    |> Stream.filter(fn comb -> Enum.sum(comb) == target_weight end)
+    |> Enum.any?(fn group2 ->
+      remaining_weights2 = weights -- group2
+
+      Stream.iterate(1, &(&1 + 1))
+      |> Stream.take_while(&(&1 <= length(remaining_weights2)))
+      |> Stream.flat_map(fn n -> combinations(remaining_weights2, n) end)
+      |> Stream.filter(fn comb -> Enum.sum(comb) == target_weight end)
+      |> Enum.any?(fn group3 ->
+        remaining_weights3 = remaining_weights2 -- group3
+        Enum.sum(remaining_weights3) == target_weight
+      end)
+    end)
+  end
+
+  defp combinations(list, n) do
+    combinations(list, n, [])
+  end
+
+  defp combinations([], _, acc), do: [Enum.reverse(acc)]
+  defp combinations(_, 0, acc), do: [Enum.reverse(acc)]
+
+  defp combinations([h | t], n, acc) do
+    with_h = combinations(t, n - 1, [h | acc])
+    without_h = combinations(t, n, acc)
+    with_h ++ without_h
+  end
+
+  defp quantum_entanglement(group) do
+    Enum.reduce(group, 1, &*/2)
+  end
+end
+
+"/Users/eli/Desktop/input.txt"
+|> File.read!()
+|> String.split("\n", trim: true)
+|> Enum.map(fn x -> String.to_integer(x) end)
+|> Santa2.solve()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+74850409
+```
+
+<!-- livebook:{"offset":4047,"stamp":{"token":"XCP.cQIy55nx91XhWtnAkmX5LRXKiraoG91l-2OpKXRnh-_ux4oeu9FOeXZqBAvH9pCrXZ94aooI9QWM5bNXE8rvymwA5WTvWGImoYuJcw","version":2}} -->

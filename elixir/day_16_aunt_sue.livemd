@@ -1,0 +1,99 @@
+<!-- livebook:{"file_entries":[{"file":{"file_system_id":"local","file_system_type":"local","path":"/Users/eli/Desktop/input.txt"},"name":"input.txt","type":"file"}]} -->
+
+# Day 16: Aunt Sue
+
+## Section
+
+```elixir
+defmodule P1 do
+  def parse_line(line) do
+    [id | attributes] = String.split(line, ": ", parts: 2)
+
+    attributes_map =
+      attributes
+      |> List.first()
+      |> String.split(", ")
+      |> Enum.map(fn pair ->
+        [key, value] = String.split(pair, ": ")
+        {String.to_atom(key), String.to_integer(value)}
+      end)
+      |> Enum.into(%{})
+
+    {id, attributes_map}
+  end
+
+  def match(attributes, map) do
+    Enum.all?(attributes, fn {key, value} ->
+      Map.get(map, key) == value
+    end)
+  end
+
+  def find_matches(input, map) do
+    input
+    |> String.split("\n", trim: true)
+    |> Enum.map(&parse_line/1)
+    |> Enum.filter(fn {_, attributes} -> match(attributes, map) end)
+    |> Enum.map(&elem(&1, 0))
+  end
+
+  def match2(attributes, map) do
+    Enum.all?(attributes, fn
+      {:cats, value} -> value > map[:cats]
+      {:trees, value} -> value > map[:trees]
+      {:pomeranians, value} -> value < map[:pomeranians]
+      {:goldfish, value} -> value < map[:goldfish]
+      {key, value} -> Map.get(map, key) == value
+    end)
+  end
+
+  def find_matches2(input, map) do
+    input
+    |> String.split("\n", trim: true)
+    |> Enum.map(&parse_line/1)
+    |> Enum.filter(fn {_, attributes} -> match2(attributes, map) end)
+    |> Enum.map(&elem(&1, 0))
+  end
+end
+
+map =
+  "children: 3
+cats: 7
+samoyeds: 2
+pomeranians: 3
+akitas: 0
+vizslas: 0
+goldfish: 5
+trees: 3
+cars: 2
+perfumes: 1"
+  |> String.split("\n", trim: true)
+  |> Enum.map(fn line ->
+    [k, v] = String.split(line, ": ")
+    {String.to_atom(k), String.to_integer(v)}
+  end)
+  |> Enum.into(%{})
+
+input =
+  "/Users/eli/Desktop/input.txt"
+  |> File.read!()
+
+P1.find_matches(input, map)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["Sue 373"]
+```
+
+```elixir
+P1.find_matches2(input, map)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["Sue 260"]
+```
+
+<!-- livebook:{"offset":2038,"stamp":{"token":"XCP.OrQMsvBgmCuGS9uzVm1eS16A_pjxTTV7JVc-VAt5EoCAIBX7qZGfIrLxwA7kDr9d-4cXyY17nZI5YghR4CMq2RX7kkB4uIADd8KBAg","version":2}} -->
